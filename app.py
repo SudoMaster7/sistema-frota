@@ -4,7 +4,9 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_bcrypt import Bcrypt
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+import pytz
 import os
+import json
 
 # --- CONFIGURAÇÃO INICIAL ---
 app = Flask(__name__)
@@ -19,22 +21,33 @@ login_manager.login_message = "Por favor, faça o login para acessar esta págin
 login_manager.login_message_category = "info"
 
 
-# --- CONEXÃO COM GOOGLE SHEETS ---
+# --- CONEXÃO COM GOOGLE SHEETS (VERSÃO PARA DEPLOY) ---
 try:
-    scope = [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive.file'
-    ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+    scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive.file']
+
+    # Pega o conteúdo do JSON da variável de ambiente
+    creds_json_str = os.environ.get('GOOGLE_CREDENTIALS_JSON')
+    if not creds_json_str:
+        raise ValueError("A variável de ambiente GOOGLE_CREDENTIALS_JSON não foi encontrada.")
+
+    # Converte a string JSON em um dicionário Python
+    creds_dict = json.loads(creds_json_str)
+
+    # Autoriza usando o dicionário de credenciais
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
+
     spreadsheet = client.open_by_key('1ZjTYIRF_n91JSCI1OytRYaRFiGkZX2JgoqB0eRIwu8I')
+    # ... (resto das planilhas) ...
     viagens_sheet = spreadsheet.worksheet("DB_Viagens")
     motoristas_sheet = spreadsheet.worksheet("DB_Motoristas")
     veiculos_sheet = spreadsheet.worksheet("DB_Veiculos")
     usuarios_sheet = spreadsheet.worksheet("DB_Usuarios")
     print("Conexão com Google Sheets estabelecida com sucesso.")
 except Exception as e:
-    print(f"ERRO ao conectar com Google Sheets: {e}")
+    print(f"ERRO CRÍTICO ao conectar com Google Sheets: {e}")
+    # Em um ambiente de produção, você pode querer lidar com isso de forma mais elegante
+    # Por enquanto, vamos parar a aplicação se a conexão falhar.
     exit()
 
 # --- MODELO DE USUÁRIO ---
@@ -178,8 +191,16 @@ def registrar_saida():
             return redirect(url_for('index'))
         
         # Converter para o formato correto
-        data_saida = data_saida_input  # Já vem no formato DD/MM/YYYY
+        data_saida = data_saida_input  # Já vem no formato YYYY-MM-DD, converter para DD/MM/YYYY
         hora_saida = hora_saida_input  # Já vem no formato HH:MM
+        
+        # Converter data de YYYY-MM-DD para DD/MM/YYYY se necessário
+        try:
+            data_obj = datetime.strptime(data_saida, '%Y-%m-%d')
+            data_saida = data_obj.strftime('%d/%m/%Y')
+        except:
+            # Se já estiver no formato correto, manter como está
+            pass
 
         # Nova viagem com estrutura compatível com a planilha
         nova_viagem = [
@@ -247,7 +268,8 @@ def registrar_chegada():
         return redirect(url_for('chegada'))
 
     # Se a validação passou, continua com o registro
-    agora = datetime.now()
+    fuso_horario_sp = pytz.timezone("America/Sao_Paulo")
+    agora = datetime.now(fuso_horario_sp)
     data_chegada = agora.strftime('%d/%m/%Y')
     hora_chegada = agora.strftime('%H:%M:%S')
 

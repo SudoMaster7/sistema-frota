@@ -5,6 +5,10 @@
       "maxDuration": 10
     }
   },
+  "env": {
+    "FLASK_ENV": "production",
+    "CACHE_TYPE": "simple"
+  },
   "routes": [
     {
       "src": "/(.*)",

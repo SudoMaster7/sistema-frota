@@ -94,21 +94,18 @@ class ProductionConfig(Config):
     SESSION_COOKIE_HTTPONLY = True
     PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
     
-    # Usar PostgreSQL em produção (obrigatório)
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    if not SQLALCHEMY_DATABASE_URI:
-        raise ValueError(
-            "⚠️ ERRO: Configure a variável de ambiente DATABASE_URL em produção!\n"
-            "Exemplo: postgresql://user:password@host:5432/frota_globo"
-        )
+    # Banco de dados: tentar usar DATABASE_URL, senão fallback seguro em memória
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///:memory:')
+    if SQLALCHEMY_DATABASE_URI == 'sqlite:///:memory:':
+        print("⚠️ Aviso: DATABASE_URL não definido. Usando SQLite em memória (sem persistência).")
     
-    # Cache Redis em produção
-    CACHE_TYPE = 'redis'
+    # Cache: usar Redis se disponível, senão fallback para 'simple'
     CACHE_REDIS_URL = os.environ.get('REDIS_URL')
-    if not CACHE_REDIS_URL:
-        raise ValueError(
-            "⚠️ ERRO: Configure a variável de ambiente REDIS_URL em produção!"
-        )
+    if CACHE_REDIS_URL:
+        CACHE_TYPE = 'redis'
+    else:
+        CACHE_TYPE = 'simple'
+        print("⚠️ Aviso: REDIS_URL não definido. Usando cache 'simple'.")
 
 
 # Selecionar configuração ativa

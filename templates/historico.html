@@ -191,15 +191,15 @@
             <div class="trip-header">
                 <div class="trip-info">
                     <span class="trip-label"><i class="fa-solid fa-user-tie me-2"></i>Motorista</span>
-                    <span class="trip-value">{{ v.Motorista }}</span>
+                    <span class="trip-value">{{ v.motorista.nome if v.motorista and v.motorista.nome else v.motorista.email if v.motorista else 'N/A' }}</span>
                 </div>
                 <div class="trip-info">
                     <span class="trip-label"><i class="fa-solid fa-car me-2"></i>Veículo</span>
-                    <span class="trip-value" style="font-family: monospace;">{{ v.PlacaVeiculo }}</span>
+                    <span class="trip-value" style="font-family: monospace;">{{ v.placa }}</span>
                 </div>
                 <div class="trip-info">
                     <span class="trip-label"><i class="fa-solid fa-route me-2"></i>Distância</span>
-                    <span class="trip-value">{{ (v.KmFinal|int - v.KmInicial|int)|default(0) }} km</span>
+                    <span class="trip-value">{{ (v.km_chegada|int - v.km_saida|int)|default(0) }} km</span>
                 </div>
             </div>
             
@@ -207,45 +207,45 @@
                 <div class="trip-details">
                     <div class="detail-box">
                         <span class="detail-label"><i class="fa-solid fa-arrow-right me-1"></i>Km Inicial</span>
-                        <span class="detail-value">{{ v.KmInicial }} km</span>
+                        <span class="detail-value">{{ v.km_saida }} km</span>
                     </div>
                     
                     <div class="detail-box">
                         <span class="detail-label"><i class="fa-solid fa-arrow-left me-1"></i>Km Final</span>
-                        <span class="detail-value">{{ v.KmFinal }} km</span>
+                        <span class="detail-value">{{ v.km_chegada }} km</span>
                     </div>
                     
                     <div class="detail-box">
                         <span class="detail-label"><i class="fa-solid fa-hourglass-start me-1"></i>Saída</span>
-                        <span class="time-badge">{{ v.DataSaida }} {{ v.HoraSaida }}</span>
+                        <span class="detail-value">{{ v.data_saida.strftime('%d/%m/%Y %H:%M:%S') if v.data_saida else 'N/A' }}</span>
                     </div>
                     
                     <div class="detail-box">
                         <span class="detail-label"><i class="fa-solid fa-hourglass-end me-1"></i>Chegada</span>
-                        <span class="time-badge">{{ v.DataChegada }} {{ v.HoraChegada }}</span>
+                        <span class="detail-value">{{ v.data_chegada.strftime('%d/%m/%Y %H:%M:%S') if v.data_chegada else 'Em andamento' }}</span>
                     </div>
                 </div>
                 
-                {% if v.Destinos %}
+                {% if v.destino %}
                 <div class="destinations-box">
                     <h5><i class="fa-solid fa-map-pin me-2"></i>Destinos</h5>
-                    <div class="destinations-text">{{ v.Destinos }}</div>
+                    <div class="destinations-text">{{ v.destino }}</div>
                 </div>
                 {% endif %}
                 
-                {% if v.Passageiros or v.Observacoes %}
+                {% if v.motivo or v.observacoes %}
                 <div style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
-                    {% if v.Passageiros %}
+                    {% if v.motivo %}
                     <div class="destinations-box">
-                        <h5><i class="fa-solid fa-users me-2"></i>Passageiros</h5>
-                        <div class="destinations-text">{{ v.Passageiros }}</div>
+                        <h5><i class="fa-solid fa-users me-2"></i>Motivo</h5>
+                        <div class="destinations-text">{{ v.motivo }}</div>
                     </div>
                     {% endif %}
                     
-                    {% if v.Observacoes %}
+                    {% if v.observacoes %}
                     <div class="destinations-box">
                         <h5><i class="fa-solid fa-note-sticky me-2"></i>Observações</h5>
-                        <div class="destinations-text">{{ v.Observacoes }}</div>
+                        <div class="destinations-text">{{ v.observacoes }}</div>
                     </div>
                     {% endif %}
                 </div>

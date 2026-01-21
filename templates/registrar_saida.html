@@ -55,9 +55,9 @@
         <p>{{ aviso_antecipacao }}</p>
         <hr>
         <p class="mb-0">
-            <strong>Agendamento:</strong> #{{ agendamento_selecionado.ID }} — 
-            {{ agendamento_selecionado.DataSolicitada }} {{ agendamento_selecionado.HoraInicio }}-{{ agendamento_selecionado.HoraFim }} — 
-            {{ agendamento_selecionado.PlacaVeiculo }} — {{ agendamento_selecionado.Motorista }}
+            <strong>Agendamento:</strong> #{{ agendamento_selecionado.id }} — 
+            {{ agendamento_selecionado.data_solicitada }} {{ agendamento_selecionado.hora_inicio }}-{{ agendamento_selecionado.hora_fim }} — 
+            {{ agendamento_selecionado.placa }} — {{ agendamento_selecionado.usuario_id }}
         </p>
     </div>
     {% endif %}
@@ -69,17 +69,31 @@
             <select class="form-select" id="agendamento_id" name="agendamento_id" required {% if agendamento_selecionado %}disabled{% endif %}>
                 <option value="" disabled {% if not agendamento_selecionado %}selected{% endif %}>Escolha um agendamento confirmado</option>
                 {% for a in agendamentos %}
-                <option value="{{ a.ID }}" {% if agendamento_selecionado and agendamento_selecionado.ID == a.ID %}selected{% endif %}>
-                    #{{ a.ID }} — {{ a.DataSolicitada }} {{ a.HoraInicio }}-{{ a.HoraFim }} — {{ a.PlacaVeiculo }} — {{ a.Motorista }} — {{ a.Destinos[:50] }}
+                <option value="{{ a.id }}" {% if agendamento_selecionado and agendamento_selecionado.id == a.id %}selected{% endif %}>
+                    #{{ a.id }} — {{ a.data_solicitada }} {{ a.hora_inicio }}-{{ a.hora_fim }} — {{ a.placa }} — {{ a.usuario_id }} — {{ a.destinos[:50] if a.destinos else '' }}
                 </option>
                 {% endfor %}
             </select>
             {% if agendamento_selecionado %}
-            <input type="hidden" name="agendamento_id" value="{{ agendamento_selecionado.ID }}">
+            <input type="hidden" name="agendamento_id" value="{{ agendamento_selecionado.id }}">
             <input type="hidden" name="antecipar" value="sim">
             {% endif %}
             {% if agendamentos|length == 0 %}
             <div class="form-text text-danger">Nenhum agendamento confirmado disponível. Confirme um agendamento na página de Agendamentos.</div>
+            {% endif %}
+        </div>
+
+        <!-- Motorista -->
+        <div class="mb-3">
+            <label for="motorista_id" class="form-label"><i class="fa-solid fa-person me-2"></i>Selecione o Motorista</label>
+            <select class="form-select" id="motorista_id" name="motorista_id" required>
+                <option value="" disabled selected>Escolha o motorista responsável</option>
+                {% for m in motoristas %}
+                <option value="{{ m.id }}">{{ m.nome if m.nome else m.email }} ({{ m.email }})</option>
+                {% endfor %}
+            </select>
+            {% if motoristas|length == 0 %}
+            <div class="form-text text-danger">Nenhum motorista cadastrado no sistema.</div>
             {% endif %}
         </div>
 

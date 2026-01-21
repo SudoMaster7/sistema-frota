@@ -1,273 +1,108 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard - Frota FUNDEC{% endblock %}
+{% block title %}Dashboard - Globo Frotas{% endblock %}
 
 {% block content %}
-<style>
-    .dashboard-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-    }
-    
-    .dashboard-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-    
-    .dashboard-header p {
-        font-size: 1rem;
-        opacity: 0.9;
-        margin: 0;
-    }
-    
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        border-left: 5px solid #667eea;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-    
-    .stat-card.success {
-        border-left-color: #10b981;
-    }
-    
-    .stat-card.warning {
-        border-left-color: #f59e0b;
-    }
-    
-    .stat-card.danger {
-        border-left-color: #ef4444;
-    }
-    
-    .stat-card.info {
-        border-left-color: #3b82f6;
-    }
-    
-    .stat-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        opacity: 0.7;
-    }
-    
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.3rem;
-    }
-    
-    .stat-label {
-        font-size: 0.85rem;
-        color: #6b7280;
-        font-weight: 500;
-    }
-    
-    .content-section {
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-    }
-    
-    .section-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #e5e7eb;
-    }
-    
-    .section-title i {
-        color: #667eea;
-        margin-right: 0.5rem;
-    }
-    
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-    }
-    
-    .form-control, .form-select {
-        border-radius: 8px;
-        border: 2px solid #e5e7eb;
-        padding: 0.7rem 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        padding: 0.7rem 1.5rem;
-        font-weight: 600;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
-    
-    .quick-actions {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-    
-    .quick-action-btn {
-        padding: 1rem;
-        border-radius: 8px;
-        border: 2px solid #e5e7eb;
-        background: white;
-        text-align: center;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        color: #1f2937;
-    }
-    
-    .quick-action-btn:hover {
-        border-color: #667eea;
-        background: #f3f4f6;
-        transform: translateY(-2px);
-        color: #667eea;
-    }
-    
-    .quick-action-btn i {
-        font-size: 1.8rem;
-        display: block;
-        margin-bottom: 0.5rem;
-        color: #667eea;
-    }
-    
-    .quick-action-btn span {
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-    
-    .alert-custom {
-        border-radius: 8px;
-        border: none;
-        padding: 1rem;
-    }
-    
-    [data-bs-theme="dark"] .content-section {
-        background: #1f2937;
-    }
-    
-    [data-bs-theme="dark"] .stat-card {
-        background: #2d3748;
-        color: #f3f4f6;
-    }
-    
-    [data-bs-theme="dark"] .stat-value {
-        color: #f3f4f6;
-    }
-    
-    [data-bs-theme="dark"] .section-title {
-        color: #f3f4f6;
-    }
-    
-    [data-bs-theme="dark"] .form-control {
-        background: #3d4556;
-        border-color: #4a5568;
-        color: #f3f4f6;
-    }
-    
-    [data-bs-theme="dark"] .quick-action-btn {
-        background: #2d3748;
-        border-color: #4a5568;
-        color: #f3f4f6;
-    }
-    
-    [data-bs-theme="dark"] .quick-action-btn:hover {
-        background: #3d4556;
-    }
-    
-    @media (max-width: 768px) {
-        .dashboard-header h1 {
-            font-size: 1.5rem;
-        }
-        
-        .dashboard-header {
-            padding: 1.5rem 1rem;
-        }
-        
-        .stats-grid {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        }
-        
-        .content-section {
-            padding: 1.5rem 1rem;
-        }
-    }
-</style>
-
 <!-- Dashboard Header -->
 <div class="dashboard-header">
     <h1><i class="fa-solid fa-gauge me-2"></i>Dashboard</h1>
-    <p>Bem-vindo, <strong>{{ current_user.id }}</strong>! Aqui está um resumo das atividades.</p>
+    <p>Bem-vindo, <strong>{{ current_user.id }}</strong>! Aqui está um resumo das atividades operacionais.</p>
 </div>
 
-<!-- Estatísticas Rápidas -->
+<!-- Estatísticas Rápidas - 3 Cards Principais -->
 <div class="stats-grid">
-    <div class="stat-card success">
+    <button class="stat-card success" type="button" data-bs-toggle="collapse" data-bs-target="#veiculosDisponiveis" aria-expanded="false" aria-controls="veiculosDisponiveis">
         <div class="stat-icon">
             <i class="fa-solid fa-car"></i>
         </div>
         <div class="stat-value">{{ veiculos_disponiveis }}</div>
         <div class="stat-label">Veículos Disponíveis</div>
-    </div>
+    </button>
     
-    <div class="stat-card warning">
+    <button class="stat-card warning" type="button" data-bs-toggle="collapse" data-bs-target="#viagensEmRota" aria-expanded="false" aria-controls="viagensEmRota">
         <div class="stat-icon">
             <i class="fa-solid fa-road"></i>
         </div>
         <div class="stat-value">{{ viagens_em_rota }}</div>
         <div class="stat-label">Em Rota Agora</div>
-    </div>
+    </button>
     
-    <div class="stat-card info">
+    <a href="{{ url_for('historico') }}" class="stat-card info" style="text-decoration: none;">
         <div class="stat-icon">
             <i class="fa-solid fa-check-circle"></i>
         </div>
         <div class="stat-value">{{ viagens_hoje }}</div>
         <div class="stat-label">Viagens Hoje</div>
-    </div>
-    
-    <div class="stat-card danger">
-        <div class="stat-icon">
-            <i class="fa-solid fa-gauge"></i>
+    </a>
+</div>
+
+<!-- Detalhes das métricas -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-xl-6">
+        <div class="collapse" id="veiculosDisponiveis">
+            <div class="content-section">
+                <div class="section-title"><i class="fa-solid fa-car-side me-1"></i>Veículos disponíveis</div>
+                <div class="table-responsive">
+                    {% if veiculos_disponiveis_lista %}
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th>Modelo</th>
+                                <th>KM Atual</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for veiculo in veiculos_disponiveis_lista %}
+                            <tr>
+                                <td>{{ veiculo.placa }}</td>
+                                <td>{{ veiculo.marca }} {{ veiculo.modelo }}</td>
+                                <td>{{ '%.0f km' % veiculo.km_atual if veiculo.km_atual is not none else '—' }}</td>
+                                <td><span class="badge bg-success">{{ veiculo.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <p class="text-muted mb-0">Nenhum veículo disponível no momento.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div class="stat-value">{{ distancia_hoje }} km</div>
-        <div class="stat-label">Distância Hoje</div>
+    </div>
+    <div class="col-12 col-xl-6">
+        <div class="collapse" id="viagensEmRota">
+            <div class="content-section">
+                <div class="section-title"><i class="fa-solid fa-road me-1"></i>Viagens em rota</div>
+                <div class="table-responsive">
+                    {% if viagens_em_rota_lista %}
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th>Motorista</th>
+                                <th>Destino</th>
+                                <th>Saída</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for viagem in viagens_em_rota_lista %}
+                            <tr>
+                                <td>{{ viagem.placa }}</td>
+                                <td>{{ viagem.motorista.nome or viagem.motorista.id if viagem.motorista else 'N/D' }}</td>
+                                <td>{{ viagem.destino or '—' }}</td>
+                                <td>{{ viagem.data_saida.strftime('%d/%m %H:%M') if viagem.data_saida else '—' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <p class="text-muted mb-0">Nenhuma viagem em rota agora.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -314,6 +149,4 @@
         {% endif %}
     </div>
 </div>
-
-<!-- Página inicial sem formulário de saída -->
 {% endblock %}

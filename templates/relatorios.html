@@ -113,6 +113,7 @@
     }
     
     .stat-label {
+        color: white;
         font-size: 0.9rem;
         opacity: 0.9;
     }
@@ -133,18 +134,84 @@
 <div class="report-header">
     <h1><i class="fa-solid fa-chart-bar me-2"></i>Relatórios Diários</h1>
     <div class="date-selector">
-        <label style="color: white; margin-bottom: 0;"><strong>Selecione a data:</strong></label>
-        <form method="get" action="{{ url_for('relatorios') }}" class="d-flex gap-2 align-items-center flex-wrap">
-            <input type="date" name="data" value="{{ data_input_value }}" class="form-control" style="width: 200px;">
-            <button type="submit" class="btn">
+        <form method="get" action="{{ url_for('relatorios') }}" class="d-flex gap-2 align-items-end flex-wrap w-100">
+            <!-- Data -->
+            <div>
+                <label style="color: white; font-weight: bold; display: block; margin-bottom: 0.5rem;">Data:</label>
+                <input type="date" name="data" value="{{ data_input_value }}" class="form-control" style="width: 200px;">
+            </div>
+            
+            <!-- Filtro por Veículo -->
+            <div>
+                <label style="color: white; font-weight: bold; display: block; margin-bottom: 0.5rem;">Veículo:</label>
+                <select name="veiculo" class="form-select" style="width: 200px;">
+                    <option value="">Todos os veículos</option>
+                    {% for veiculo in todos_veiculos %}
+                    <option value="{{ veiculo.placa }}" {% if request.args.get('veiculo') == veiculo.placa %}selected{% endif %}>
+                        {{ veiculo.placa }} - {{ veiculo.marca }} {{ veiculo.modelo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Filtro por Motorista -->
+            <div>
+                <label style="color: white; font-weight: bold; display: block; margin-bottom: 0.5rem;">Motorista:</label>
+                <select name="motorista" class="form-select" style="width: 200px;">
+                    <option value="">Todos os motoristas</option>
+                    {% for motorista in todos_motoristas %}
+                    <option value="{{ motorista.nome if motorista.nome else motorista.email }}" {% if request.args.get('motorista') == motorista.nome or request.args.get('motorista') == motorista.email %}selected{% endif %}>
+                        {{ motorista.nome if motorista.nome else motorista.email }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Botão de Busca -->
+            <button type="submit" class="btn" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); color: white; font-weight: 600; padding: 0.7rem 1.5rem; border-radius: 8px;">
                 <i class="fa-solid fa-magnifying-glass me-2"></i>Buscar
             </button>
         </form>
-        <span style="color: white; margin-left: auto;"><strong>Período:</strong> {{ data_display }}</span>
+        <span style="color: white; margin-top: 1rem; display: block;"><strong>Período:</strong> {{ data_display }} | <strong>Viagens:</strong> {{ viagens_total }}</span>
     </div>
 </div>
 
 <div class="report-grid">
+
+    <!-- Sumário Estatístico -->
+    <div class="report-card">
+        <div class="card-header">
+            <h4><i class="fa-solid fa-chart-line me-2"></i>Resumo do Dia</h4>
+        </div>
+        <div class="card-body">
+            <div class="stat-box">
+                <div class="stat-number">{{ viagens_total }}</div>
+                <div class="stat-label">Viagens Realizadas</div>
+            </div>
+            
+            {% if relatorio_veiculos %}
+            <div class="stat-box">
+                <div class="stat-number">{{ relatorio_veiculos.values()|sum }}</div>
+                <div class="stat-label">KM Totais da Frota</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-number">{{ (relatorio_veiculos.values()|sum / viagens_total)|round(0)|int if viagens_total > 0 else 0 }}</div>
+                <div class="stat-label">KM Médio por Viagem</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-number">{{ relatorio_veiculos|length }}</div>
+                <div class="stat-label">Veículos Utilizados</div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-chart-pie"></i>
+                <p class="text-muted">Nenhuma viagem registrada para esta data</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
     <!-- Quilometragem por Veículo -->
     <div class="report-card">

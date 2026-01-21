@@ -228,7 +228,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <div><strong>Veículo em Uso</strong></div>
-                            <div class="veiculo-placa mt-2">{{ v.PlacaVeiculo }}</div>
+                            <div class="veiculo-placa mt-2">{{ v.placa }}</div>
                         </div>
                         <div class="col-md-4 text-end">
                             <span class="status-badge status-em-rota">
@@ -250,24 +250,24 @@
                             <i class="fa-solid fa-user"></i>
                             <div>
                                 <div class="info-label">Motorista Autorizado:</div>
-                                <div class="info-value">{{ v.Motorista }}</div>
+                                <div class="info-value">{{ v.motorista.nome if v.motorista and v.motorista.nome else v.motorista.email if v.motorista else 'N/A' }}</div>
                             </div>
                         </div>
-                        {% if v.AgendadoPor %}
+                        {% if v.usuario_agendamento %}
                         <div class="info-item mt-2">
                             <i class="fa-solid fa-calendar-check"></i>
                             <div>
                                 <div class="info-label">Agendado por:</div>
-                                <div class="info-value">{{ v.AgendadoPor }}</div>
+                                <div class="info-value">{{ v.usuario_agendamento.nome if v.usuario_agendamento else 'N/A' }}</div>
                             </div>
                         </div>
                         {% endif %}
-                        {% if v.TelefoneContato %}
+                        {% if v.telefone_contato %}
                         <div class="info-item mt-2">
                             <i class="fa-solid fa-phone"></i>
                             <div>
                                 <div class="info-label">Contato:</div>
-                                <div class="info-value">{{ v.TelefoneContato }}</div>
+                                <div class="info-value">{{ v.telefone_contato }}</div>
                             </div>
                         </div>
                         {% endif %}
@@ -277,15 +277,15 @@
                     <div class="horario-section">
                         <div class="mb-3">
                             <strong><i class="fa-solid fa-calendar-days text-primary me-2"></i>Data da Saída:</strong>
-                            <span class="ms-2">{{ v.DataSaida }}</span>
+                            <span class="ms-2">{{ v.data_saida.strftime('%d/%m/%Y %H:%M') if v.data_saida else 'N/A' }}</span>
                         </div>
                         <div>
                             <span class="horario-badge saida">
-                                <i class="fa-solid fa-sign-out me-1"></i>Saída: {{ v.HoraSaida }}
+                                <i class="fa-solid fa-sign-out me-1"></i>Saída: {{ v.data_saida.strftime('%H:%M') if v.data_saida else 'N/A' }}
                             </span>
-                            {% if v.HoraChegada %}
+                            {% if v.data_chegada %}
                             <span class="horario-badge chegada">
-                                <i class="fa-solid fa-sign-in me-1"></i>Chegada: {{ v.HoraChegada }}
+                                <i class="fa-solid fa-sign-in me-1"></i>Chegada: {{ v.data_chegada.strftime('%H:%M') }}
                             </span>
                             {% else %}
                             <span class="horario-badge" style="background-color: #6c757d; color: white;">
@@ -296,18 +296,18 @@
                     </div>
 
                     <!-- Informações de Quilometragem -->
-                    {% if v.KmInicial and v.KmFinal %}
+                    {% if v.km_saida and v.km_chegada %}
                     <div class="km-info">
                         <div class="info-item">
                             <i class="fa-solid fa-gauge"></i>
-                            <span><strong>KM Inicial:</strong> {{ v.KmInicial }} | <strong>KM Final:</strong> {{ v.KmFinal }} | <strong>Distância:</strong> {{ v.KmFinal|int - v.KmInicial|int }} km</span>
+                            <span><strong>KM Inicial:</strong> {{ v.km_saida }} | <strong>KM Final:</strong> {{ v.km_chegada }} | <strong>Distância:</strong> {{ v.km_chegada|int - v.km_saida|int }} km</span>
                         </div>
                     </div>
-                    {% elif v.KmInicial %}
+                    {% elif v.km_saida %}
                     <div class="km-info">
                         <div class="info-item">
                             <i class="fa-solid fa-gauge"></i>
-                            <span><strong>KM Inicial:</strong> {{ v.KmInicial }} | <strong>KM Final:</strong> Pendente</span>
+                            <span><strong>KM Inicial:</strong> {{ v.km_saida }} | <strong>KM Final:</strong> Pendente</span>
                         </div>
                     </div>
                     {% endif %}
@@ -318,7 +318,7 @@
                             <i class="fa-solid fa-map-location-dot text-success me-2"></i>Locais de Parada / Destinos:
                         </strong>
                         <div class="destinos-box">
-                            {% set destinos_list = v.Destinos.split(',') if v.Destinos else [] %}
+                            {% set destinos_list = v.destino.split(',') if v.destino else [] %}
                             {% if destinos_list|length > 0 %}
                                 {% for destino in destinos_list %}
                                 <div class="destino-item">
@@ -335,29 +335,29 @@
                     <!-- Estatísticas Rápidas -->
                     <div class="stats-row mt-3">
                         <div class="stat-box">
-                            <div class="stat-value">{{ v.Motorista[0] }}</div>
+                            <div class="stat-value">{{ (v.motorista.nome if v.motorista and v.motorista.nome else v.motorista.email if v.motorista else 'N/A')[0] }}</div>
                             <div class="stat-label">Motorista</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-value">{{ destinos_list|length }}</div>
                             <div class="stat-label">Paradas</div>
                         </div>
-                        {% if v.KmInicial and v.KmFinal %}
+                        {% if v.km_saida and v.km_chegada %}
                         <div class="stat-box">
-                            <div class="stat-value">{{ (v.KmFinal|int - v.KmInicial|int) }}</div>
+                            <div class="stat-value">{{ (v.km_chegada|int - v.km_saida|int) }}</div>
                             <div class="stat-label">Distância (km)</div>
                         </div>
                         {% endif %}
                     </div>
 
                     <!-- Observações / Info do Passageiros -->
-                    {% if v.Observacoes or v.Passageiros %}
+                    {% if v.observacoes or v.passageiros %}
                     <div class="alert alert-info mt-3 mb-0">
-                        {% if v.Passageiros %}
-                        <div><strong><i class="fa-solid fa-people-group me-2"></i>Passageiros:</strong> {{ v.Passageiros }}</div>
+                        {% if v.passageiros %}
+                        <div><strong><i class="fa-solid fa-people-group me-2"></i>Passageiros:</strong> {{ v.passageiros }}</div>
                         {% endif %}
-                        {% if v.Observacoes %}
-                        <div class="mt-2"><strong><i class="fa-solid fa-clipboard me-2"></i>Observações:</strong> {{ v.Observacoes }}</div>
+                        {% if v.observacoes %}
+                        <div class="mt-2"><strong><i class="fa-solid fa-clipboard me-2"></i>Observações:</strong> {{ v.observacoes }}</div>
                         {% endif %}
                     </div>
                     {% endif %}
@@ -395,16 +395,16 @@
                 <div class="modal-body">
                     <p>Tem certeza que deseja cancelar esta viagem?</p>
                     <div class="alert alert-warning">
-                        <strong>Veículo:</strong> {{ v.PlacaVeiculo }}<br>
-                        <strong>Motorista:</strong> {{ v.Motorista }}<br>
-                        <strong>Data/Hora:</strong> {{ v.DataSaida }} às {{ v.HoraSaida }}
+                        <strong>Veículo:</strong> {{ v.placa }}<br>
+                        <strong>Motorista:</strong> {{ v.motorista.nome if v.motorista else 'N/A' }}<br>
+                        <strong>Data/Hora:</strong> {{ v.data_saida.strftime('%d/%m/%Y %H:%M') if v.data_saida else 'N/A' }}
                     </div>
                     <p class="text-muted"><small>Esta ação não pode ser desfeita!</small></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não, Voltar</button>
                     <form action="/cancelar-viagem" method="POST" style="display: inline;">
-                        <input type="hidden" name="viagem_id" value="{{ v.ID }}">
+                        <input type="hidden" name="viagem_id" value="{{ v.id }}">
                         <button type="submit" class="btn btn-danger">
                             <i class="fa-solid fa-trash me-1"></i>Sim, Cancelar Viagem
                         </button>

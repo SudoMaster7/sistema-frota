@@ -289,7 +289,7 @@
                     <select class="form-control" id="veiculo" name="veiculo" required>
                         <option value="">Selecione um veículo...</option>
                         {% for veiculo in veiculos %}
-                        <option value="{{ veiculo.Placa }}">{{ veiculo.Placa }} - {{ veiculo.Modelo }} ({{ veiculo.Ano }})</option>
+                        <option value="{{ veiculo.placa }}">{{ veiculo.placa }} - {{ veiculo.modelo }} ({{ veiculo.ano }})</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -301,7 +301,7 @@
                     <select class="form-control" id="motorista" name="motorista" required>
                         <option value="">Selecione um motorista...</option>
                         {% for motorista in motoristas %}
-                        <option value="{{ motorista.Nome }}">{{ motorista.Nome }} - Matrícula: {{ motorista.Matricula }}</option>
+                        <option value="{{ motorista.id }}">{{ motorista.nome }} - {{ motorista.email }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -366,6 +366,27 @@
                         <i class="fa-solid fa-users"></i>Número de Passageiros
                     </label>
                     <input type="number" class="form-control" id="passageiros" name="passageiros" min="1" max="20" placeholder="Ex: 5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="producao_evento" class="form-label">
+                        <i class="fa-solid fa-film"></i>Produção/Evento
+                    </label>
+                    <select class="form-control" id="producao_evento" name="producao_evento">
+                        <option value="">Selecione o tipo de evento</option>
+                        {% if opcoes_producao %}
+                            {% for opcao in opcoes_producao %}
+                            <option value="{{ opcao }}">{{ opcao }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="Cobertura Jornalística">Cobertura Jornalística</option>
+                            <option value="Transporte Equipe Técnica">Transporte Equipe Técnica</option>
+                            <option value="Transporte Atletas">Transporte Atletas</option>
+                            <option value="Transporte Autoridades">Transporte Autoridades</option>
+                            <option value="Suporte Logístico">Suporte Logístico</option>
+                            <option value="Outro">Outro</option>
+                        {% endif %}
+                    </select>
                 </div>
                 
                 <div class="form-group">

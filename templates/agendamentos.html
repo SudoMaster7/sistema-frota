@@ -368,96 +368,89 @@
         {% for agend in agendamentos %}
         <div class="agendamento-card">
             <div class="agendamento-header">
-                <span class="agendamento-placa">{{ agend.PlacaVeiculo }}</span>
-                <span class="status-badge status-{{ agend.Status|lower|replace(' ', '-') }}">
-                    {{ agend.Status }}
+                <span class="agendamento-placa">{{ agend.placa }}</span>
+                <span class="status-badge status-{{ agend.status|lower|replace(' ', '-') }}">
+                    {{ agend.status }}
                 </span>
             </div>
             
             <div class="agendamento-body">
                 <div class="agendamento-info">
                     <div class="info-item">
-                        <span class="info-label"><i class="fa-solid fa-user me-1"></i>Motorista</span>
-                        <span class="info-value">{{ agend.Motorista }}</span>
+                        <span class="info-label"><i class="fa-solid fa-car me-1"></i>Veículo</span>
+                        <span class="info-value">{{ agend.veiculo.marca }} {{ agend.veiculo.modelo if agend.veiculo else 'N/A' }}</span>
                     </div>
 
-                    {% if agend.AgendadoPor %}
                     <div class="info-item">
-                        <span class="info-label"><i class="fa-solid fa-calendar-check me-1"></i>Agendado por</span>
-                        <span class="info-value">{{ agend.AgendadoPor }}</span>
+                        <span class="info-label"><i class="fa-solid fa-calendar-check me-1"></i>Agendado em</span>
+                        <span class="info-value">{{ agend.data_agendamento.strftime('%d/%m/%Y %H:%M') if agend.data_agendamento else 'N/A' }}</span>
                     </div>
-                    {% endif %}
-
-                    {% if agend.TelefoneContato %}
-                    <div class="info-item">
-                        <span class="info-label"><i class="fa-solid fa-phone me-1"></i>Contato</span>
-                        <span class="info-value">{{ agend.TelefoneContato }}</span>
-                    </div>
-                    {% endif %}
                     
                     <div class="info-item">
                         <span class="info-label"><i class="fa-solid fa-calendar me-1"></i>Data Solicitada</span>
-                        <span class="info-value">{{ agend.DataSolicitada }}</span>
+                        <span class="info-value">{{ agend.data_solicitada.strftime('%d/%m/%Y') if agend.data_solicitada else 'N/A' }}</span>
                     </div>
                     
                     <div class="info-item">
                         <span class="info-label"><i class="fa-solid fa-clock me-1"></i>Horário</span>
-                        <span class="info-value">{{ agend.HoraInicio }} - {{ agend.HoraFim }}</span>
+                        <span class="info-value">{{ agend.hora_inicio.strftime('%H:%M') if agend.hora_inicio else 'N/A' }} - {{ agend.hora_fim.strftime('%H:%M') if agend.hora_fim else 'N/A' }}</span>
                     </div>
                     
-                    {% if agend.Passageiros %}
+                    {% if agend.passageiros %}
                     <div class="info-item">
                         <span class="info-label"><i class="fa-solid fa-users me-1"></i>Passageiros</span>
-                        <span class="info-value">{{ agend.Passageiros }}</span>
+                        <span class="info-value">{{ agend.passageiros }}</span>
                     </div>
                     {% endif %}
                     
-                    {% if agend.Destinos %}
+                    {% if agend.destinos %}
                     <div class="destinos-box">
                         <div class="destinos-text">
                             <strong><i class="fa-solid fa-map-pin me-1"></i>Destinos:</strong><br>
-                            {{ agend.Destinos }}
+                            {{ agend.destinos }}
                         </div>
                     </div>
                     {% endif %}
                     
-                    {% if agend.Observacoes %}
+                    {% if agend.observacoes %}
                     <div class="destinos-box" style="border-left-color: #f59e0b;">
                         <div class="destinos-text">
                             <strong><i class="fa-solid fa-note-sticky me-1"></i>Observações:</strong><br>
-                            {{ agend.Observacoes }}
+                            {{ agend.observacoes }}
                         </div>
                     </div>
                     {% endif %}
                 </div>
                 
                 <div class="agendamento-actions">
-                    {% if current_user.role == 'admin' %}
-                        {% if agend.Status == 'Agendado' %}
-                            <form method="post" action="{{ url_for('confirmar_agendamento', agendamento_id=agend.ID) }}" style="flex: 1;">
+                    {% if current_user.role|lower == 'admin' %}
+                        {% if agend.status == 'Agendado' %}
+                            <form method="post" action="{{ url_for('confirmar_agendamento', agendamento_id=agend.id) }}" style="flex: 1;">
                                 <button type="submit" class="btn-action btn-confirmar" style="width: 100%;">
                                     <i class="fa-solid fa-check"></i>Confirmar
                                 </button>
                             </form>
                         {% endif %}
 
-                        {% if agend.Status == 'Confirmado' %}
-                            <a href="{{ url_for('registrar_saida') }}?agendamento_id={{ agend.ID }}" class="btn-action btn btn-warning" style="color: #1f2937;">
+                        {% if agend.status == 'Confirmado' %}
+                            <a href="{{ url_for('registrar_saida') }}?agendamento_id={{ agend.id }}" class="btn-action btn btn-warning" style="color: #1f2937;">
                                 <i class="fa-solid fa-sign-out"></i> Registrar Saída
                             </a>
                         {% endif %}
 
-                        {% if agend.Status == 'Em Uso' %}
-                            <a href="{{ url_for('chegada') }}?placa={{ agend.PlacaVeiculo }}" class="btn-action btn btn-success">
+                        {% if agend.status == 'Em Uso' %}
+                            <a href="{{ url_for('registrar_chegada') }}?agendamento_id={{ agend.id }}" class="btn-action btn btn-success">
                                 <i class="fa-solid fa-sign-in"></i> Registrar Chegada
                             </a>
                         {% endif %}
                     {% endif %}
 
-                    {% if agend.Status in ['Agendado','Confirmado'] %}
-                        <button class="btn-action btn-cancelar" onclick="abrirModalCancelamento('{{ agend.ID }}')">
-                            <i class="fa-solid fa-times"></i>Cancelar
-                        </button>
+                    {% if agend.status in ['Agendado','Confirmado'] %}
+                        <form method="post" action="{{ url_for('cancelar_agendamento', agendamento_id=agend.id) }}" style="flex: 1;">
+                            <button type="submit" class="btn-action btn-cancelar" style="width: 100%;" onclick="return confirm('Deseja cancelar este agendamento?');">
+                                <i class="fa-solid fa-times"></i>Cancelar
+                            </button>
+                        </form>
                     {% endif %}
                 </div>
             </div>
@@ -467,7 +460,7 @@
 {% else %}
     <div class="empty-state">
         <i class="fa-solid fa-calendar-xmark"></i>
-        {% if current_user.role == 'admin' %}
+        {% if current_user.role|lower == 'admin' %}
             <h3>Nenhum agendamento encontrado</h3>
             <p>Quando houver agendamentos, eles aparecerão aqui.</p>
         {% else %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Veículo{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h3 class="mb-0">
+                        <i class="fa-solid fa-pen me-2"></i>Editar Veículo - {{ veiculo.placa }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="placa" class="form-label">Placa *</label>
+                            <input type="text" class="form-control" id="placa" name="placa" 
+                                   value="{{ veiculo.placa }}" required maxlength="10">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="marca" class="form-label">Marca *</label>
+                            <input type="text" class="form-control" id="marca" name="marca" 
+                                   value="{{ veiculo.marca }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modelo" class="form-label">Modelo *</label>
+                            <input type="text" class="form-control" id="modelo" name="modelo" 
+                                   value="{{ veiculo.modelo }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="disponível" {% if veiculo.status == 'disponível' %}selected{% endif %}>
+                                    Disponível
+                                </option>
+                                <option value="em manutenção" {% if veiculo.status == 'em manutenção' %}selected{% endif %}>
+                                    Em Manutenção
+                                </option>
+                                <option value="em viagem" {% if veiculo.status == 'em viagem' %}selected{% endif %}>
+                                    Em Viagem
+                                </option>
+                                <option value="inativo" {% if veiculo.status == 'inativo' %}selected{% endif %}>
+                                    Inativo
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('gerenciar') }}" class="btn btn-secondary">
+                                <i class="fa-solid fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fa-solid fa-save me-2"></i>Atualizar Veículo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

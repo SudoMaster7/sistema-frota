@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Veículo{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fa-solid fa-car me-2"></i>Adicionar Novo Veículo
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="placa" class="form-label">Placa *</label>
+                            <input type="text" class="form-control" id="placa" name="placa" 
+                                   placeholder="ABC1234" required maxlength="10">
+                            <small class="text-muted">Formato: ABC1234</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="marca" class="form-label">Marca *</label>
+                            <input type="text" class="form-control" id="marca" name="marca" 
+                                   placeholder="Toyota" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modelo" class="form-label">Modelo *</label>
+                            <input type="text" class="form-control" id="modelo" name="modelo" 
+                                   placeholder="Hiace" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ano" class="form-label">Ano</label>
+                            <input type="number" class="form-control" id="ano" name="ano" 
+                                   placeholder="2023" min="1990" max="2100">
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('gerenciar') }}" class="btn btn-secondary">
+                                <i class="fa-solid fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-save me-2"></i>Adicionar Veículo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

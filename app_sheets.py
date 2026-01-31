@@ -15,6 +15,27 @@ from supabase_db import SupabaseDB
 # Carregar variáveis de ambiente
 load_dotenv()
 
+# Configure logging
+# In Vercel (production), we cannot write to files, so we use StreamHandler (stdout)
+if os.environ.get('VERCEL') or os.environ.get('ENVIRONMENT') == 'production':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(levelname)s:%(name)s:%(message)s',
+        handlers=[logging.StreamHandler()]
+    )
+else:
+    # Local development - use file
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(levelname)s:%(name)s:%(message)s',
+        handlers=[
+            RotatingFileHandler('logs/frota_globo.log', maxBytes=10485760, backupCount=10),
+            logging.StreamHandler()
+        ]
+    )
+
 # Inicialização do Flask
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-123')

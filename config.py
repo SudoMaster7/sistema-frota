@@ -19,12 +19,13 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Mostrar SQL gerado no console
     
-    # Banco de dados - PostgreSQL em produção
+    # Banco de dados - PostgreSQL em produção, SQLite em desenvolvimento
     # IMPORTANTE: Configure a variável de ambiente DATABASE_URL antes de rodar em produção
-    # Exemplo: postgresql://usuario:senha@localhost:5432/frota_globo
+    # Exemplo PostgreSQL: postgresql://usuario:senha@localhost:5432/frota_globo
+    # Exemplo SQLite: sqlite:///frota_globo.db
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL',
-        'postgresql://postgres:postgres@localhost:5432/frota_globo'
+        'sqlite:///frota_globo.db'  # SQLite para desenvolvimento sem PostgreSQL
     )
     
     # Flask-Login

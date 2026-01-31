@@ -217,12 +217,12 @@
                     
                     <div class="detail-box">
                         <span class="detail-label"><i class="fa-solid fa-hourglass-start me-1"></i>Saída</span>
-                        <span class="detail-value">{{ v.data_saida.strftime('%d/%m/%Y %H:%M:%S') if v.data_saida else 'N/A' }}</span>
+                        <span class="detail-value">{{ v.data_saida|format_date('%d/%m/%Y %H:%M:%S') if v.data_saida else 'N/A' }}</span>
                     </div>
                     
                     <div class="detail-box">
                         <span class="detail-label"><i class="fa-solid fa-hourglass-end me-1"></i>Chegada</span>
-                        <span class="detail-value">{{ v.data_chegada.strftime('%d/%m/%Y %H:%M:%S') if v.data_chegada else 'Em andamento' }}</span>
+                        <span class="detail-value">{{ v.data_chegada|format_date('%d/%m/%Y %H:%M:%S') if v.data_chegada else 'Em andamento' }}</span>
                     </div>
                 </div>
                 

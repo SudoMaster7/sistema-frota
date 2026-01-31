@@ -1,18 +1,14 @@
 {
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.11",
-      "maxDuration": 10
+  "builds": [
+    {
+      "src": "app_sheets.py",
+      "use": "@vercel/python"
     }
-  },
-  "env": {
-    "FLASK_ENV": "production",
-    "CACHE_TYPE": "simple"
-  },
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/api/index.py"
+      "dest": "app_sheets.py"
     }
   ]
 }

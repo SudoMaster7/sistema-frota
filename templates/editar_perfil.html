@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-6 col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="fa-solid fa-user-pen me-2"></i>Editar Perfil</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                    <!-- ID do Usuário (somente leitura) -->
+                    <div class="mb-3">
+                        <label for="id" class="form-label">ID do Usuário</label>
+                        <input type="text" class="form-control" id="id" value="{{ usuario.id }}" disabled>
+                        <small class="text-muted">Este ID não pode ser alterado</small>
+                    </div>
+
+                    <!-- Email (somente leitura) -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" value="{{ usuario.email }}" disabled>
+                        <small class="text-muted">Email registrado no sistema</small>
+                    </div>
+
+                    <!-- Nome -->
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nome" name="nome" 
+                               value="{{ usuario.nome or '' }}" required minlength="3" maxlength="100">
+                        <div class="invalid-feedback">
+                            Nome deve ter pelo menos 3 caracteres.
+                        </div>
+                        <small class="text-muted">Seu nome completo</small>
+                    </div>
+
+                    <!-- Telefone -->
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">Telefone</label>
+                        <input type="tel" class="form-control" id="telefone" name="telefone" 
+                               value="{{ usuario.telefone or '' }}" placeholder="(11) 98765-4321" maxlength="20">
+                        <small class="text-muted">Opcional - Seu número de telefone</small>
+                    </div>
+
+                    <!-- Role (somente leitura) -->
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Permissão</label>
+                        <input type="text" class="form-control" id="role" 
+                               value="{% if usuario.role|lower == 'admin' %}Administrador{% else %}Usuário{% endif %}" disabled>
+                        <small class="text-muted">Seu nível de acesso no sistema</small>
+                    </div>
+
+                    <!-- Data de Criação (somente leitura) -->
+                    <div class="mb-3">
+                        <label for="data_criacao" class="form-label">Membro desde</label>
+                        <input type="text" class="form-control" id="data_criacao" 
+                               value="{{ usuario.data_criacao|format_date('%d/%m/%Y %H:%M') if usuario.data_criacao else 'N/A' }}" disabled>
+                        <small class="text-muted">Data em que sua conta foi criada</small>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Seção de Segurança -->
+        <div class="card shadow mt-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fa-solid fa-lock me-2"></i>Segurança</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Você está logado como <strong>{{ usuario.email }}</strong></p>
+                <p class="text-muted small mb-0">Para segurança, você pode fazer logout e fazer login novamente com uma nova senha (se necessário).</p>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm mt-3">
+                    <i class="fa-solid fa-right-from-bracket me-1"></i>Fazer Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação do formulário
+(function () {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+
+<style>
+    .card {
+        border: none;
+        border-top: 3px solid var(--bs-danger);
+    }
+
+    .card-header {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #1A1A1A;
+    }
+
+    .form-control:disabled, 
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+    }
+
+    .text-danger {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

@@ -161,6 +161,40 @@ def logout():
     flash('Você foi desconectado.', 'info')
     return redirect(url_for('login'))
 
+@app.route('/perfil/editar', endpoint='editar_perfil', methods=['GET', 'POST'])
+@login_required
+def editar_perfil():
+    """Editar perfil do usuário"""
+    if request.method == 'POST':
+        try:
+            nome = request.form.get('nome', '').strip()
+            telefone = request.form.get('telefone', '').strip()
+            
+            # Validar dados
+            if not nome:
+                flash('Nome é obrigatório!', 'danger')
+                return render_template('editar_perfil.html', usuario=current_user)
+            
+            if len(nome) < 3:
+                flash('Nome deve ter pelo menos 3 caracteres!', 'danger')
+                return render_template('editar_perfil.html', usuario=current_user)
+            
+            # Atualizar usuário
+            current_user.nome = nome
+            if telefone:
+                current_user.telefone = telefone
+            
+            db.session.commit()
+            flash('Perfil atualizado com sucesso!', 'success')
+            app.logger.info(f'✏️ Usuário {current_user.email} atualizou seu perfil')
+            return redirect(url_for('editar_perfil'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao atualizar perfil: {str(e)}', 'danger')
+            return render_template('editar_perfil.html', usuario=current_user)
+    
+    return render_template('editar_perfil.html', usuario=current_user)
 
 @app.route('/agendamentos')
 @login_required
@@ -554,6 +588,8 @@ def agendar_veiculo():
     """Agendar veículo"""
     if request.method == 'POST':
         # Processar formulário de agendamento
+        from datetime import datetime, date, time
+        
         placa = request.form.get('veiculo')
         motorista_id = request.form.get('motorista')
         data_solicitada = request.form.get('data_solicitada')
@@ -573,13 +609,30 @@ def agendar_veiculo():
             motoristas = db.session.execute(stmt_motoristas).scalars().all()
             return render_template('agendar_veiculo.html', veiculos=veiculos, motoristas=motoristas)
         
+        # Converter strings para tipos Python apropriados
+        try:
+            # Converter data (formato: YYYY-MM-DD)
+            data_obj = datetime.strptime(data_solicitada, '%Y-%m-%d').date()
+            
+            # Converter horas (formato: HH:MM)
+            hora_inicio_obj = datetime.strptime(hora_inicio, '%H:%M').time()
+            hora_fim_obj = datetime.strptime(hora_fim, '%H:%M').time()
+        except ValueError as e:
+            flash(f'Erro ao processar data/hora: {str(e)}', 'danger')
+            from sqlalchemy import select
+            stmt_veiculos = select(Veiculo).where(Veiculo.status == 'disponível')
+            veiculos = db.session.execute(stmt_veiculos).scalars().all()
+            stmt_motoristas = select(Usuario).where(Usuario.role == 'motorista')
+            motoristas = db.session.execute(stmt_motoristas).scalars().all()
+            return render_template('agendar_veiculo.html', veiculos=veiculos, motoristas=motoristas)
+        
         # Criar agendamento
         novo_agendamento = Agendamento(
             usuario_id=current_user.id,
             placa=placa,
-            data_solicitada=data_solicitada,
-            hora_inicio=hora_inicio,
-            hora_fim=hora_fim,
+            data_solicitada=data_obj,
+            hora_inicio=hora_inicio_obj,
+            hora_fim=hora_fim_obj,
             destinos=destinos,
             passageiros=int(passageiros) if passageiros else None,
             observacoes=observacoes,

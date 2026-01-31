@@ -5,15 +5,16 @@
 {% block content %}
 <style>
     .agendamentos-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ff002b 0%, #ff7b00 100%);
         color: white;
         padding: 2rem;
         border-radius: 12px;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        box-shadow: 0 10px 30px rgba(255, 0, 43, 0.2);
     }
     
     .agendamentos-header h1 {
+        background: linear-gradient(135deg, #ff002b 0%, #ff7b00 100%);
         font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
@@ -26,7 +27,7 @@
     }
     
     .btn-agendar {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ff002b 0%, #ff7b00 100%);
         color: white;
         border: none;
         padding: 0.75rem 1.5rem;
@@ -40,7 +41,7 @@
     
     .btn-agendar:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 15px rgba(255, 0, 43, 0.3);
         color: white;
     }
     
@@ -65,7 +66,7 @@
     }
     
     .agendamento-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #e0582e 0%, #a31c1c 100%);
         color: white;
         padding: 1rem;
         display: flex;
@@ -103,8 +104,8 @@
     }
     
     .status-finalizado {
-        background: rgba(34, 197, 94, 0.2);
-        color: #15803d;
+        background: rgba(30, 204, 7, 0.2);
+        color: #ffffff;
     }
     
     .status-cancelado {
@@ -199,7 +200,7 @@
         background: #f3f4f6;
         padding: 0.75rem;
         border-radius: 6px;
-        border-left: 3px solid #667eea;
+        border-left: 3px solid  #dc2626;
         margin-top: 0.5rem;
     }
     
@@ -383,17 +384,17 @@
 
                     <div class="info-item">
                         <span class="info-label"><i class="fa-solid fa-calendar-check me-1"></i>Agendado em</span>
-                        <span class="info-value">{{ agend.data_agendamento.strftime('%d/%m/%Y %H:%M') if agend.data_agendamento else 'N/A' }}</span>
+                        <span class="info-value">{{ agend.data_agendamento|format_date('%d/%m/%Y %H:%M') if agend.data_agendamento else 'N/A' }}</span>
                     </div>
                     
                     <div class="info-item">
                         <span class="info-label"><i class="fa-solid fa-calendar me-1"></i>Data Solicitada</span>
-                        <span class="info-value">{{ agend.data_solicitada.strftime('%d/%m/%Y') if agend.data_solicitada else 'N/A' }}</span>
+                        <span class="info-value">{{ agend.data_solicitada|format_date('%d/%m/%Y') if agend.data_solicitada else 'N/A' }}</span>
                     </div>
                     
                     <div class="info-item">
                         <span class="info-label"><i class="fa-solid fa-clock me-1"></i>Horário</span>
-                        <span class="info-value">{{ agend.hora_inicio.strftime('%H:%M') if agend.hora_inicio else 'N/A' }} - {{ agend.hora_fim.strftime('%H:%M') if agend.hora_fim else 'N/A' }}</span>
+                        <span class="info-value">{{ agend.hora_inicio|format_date('%H:%M') if agend.hora_inicio else 'N/A' }} - {{ agend.hora_fim|format_date('%H:%M') if agend.hora_fim else 'N/A' }}</span>
                     </div>
                     
                     {% if agend.passageiros %}

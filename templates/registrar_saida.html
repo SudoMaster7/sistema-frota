@@ -12,20 +12,49 @@
         margin-bottom: 2rem;
         box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
     }
-    .page-header h1 { font-size: 1.8rem; font-weight: 700; margin: 0; }
+
+    .page-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+    }
 
     .content-section {
         background: white;
         border-radius: 12px;
         padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    .section-title { font-size: 1.1rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; }
-    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
-    .form-control, .form-select { border-radius: 8px; border: 2px solid #e5e7eb; padding: 0.7rem 1rem; }
 
-    [data-bs-theme="dark"] .content-section { background: #1f2937; }
-    [data-bs-theme="dark"] .form-control { background: #3d4556; border-color: #4a5568; color: #f3f4f6; }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+        padding: 0.7rem 1rem;
+    }
+
+    [data-bs-theme="dark"] .content-section {
+        background: #1f2937;
+    }
+
+    [data-bs-theme="dark"] .form-control {
+        background: #3d4556;
+        border-color: #4a5568;
+        color: #f3f4f6;
+    }
 </style>
 
 <div class="page-header">
@@ -34,15 +63,17 @@
 
 <div class="content-section">
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show" role="alert">
-                <i class="fa-solid fa-{{ 'circle-exclamation' if category == 'danger' else 'circle-check' if category == 'success' else 'triangle-exclamation' if category == 'warning' else 'circle-info' }} me-2"></i>
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show"
+        role="alert">
+        <i
+            class="fa-solid fa-{{ 'circle-exclamation' if category == 'danger' else 'circle-check' if category == 'success' else 'triangle-exclamation' if category == 'warning' else 'circle-info' }} me-2"></i>
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 
     <div class="alert alert-info" role="alert">
@@ -55,8 +86,9 @@
         <p>{{ aviso_antecipacao }}</p>
         <hr>
         <p class="mb-0">
-            <strong>Agendamento:</strong> #{{ agendamento_selecionado.id }} — 
-            {{ agendamento_selecionado.data_solicitada }} {{ agendamento_selecionado.hora_inicio }}-{{ agendamento_selecionado.hora_fim }} — 
+            <strong>Agendamento:</strong> #{{ agendamento_selecionado.id }} —
+            {{ agendamento_selecionado.data_solicitada }} {{ agendamento_selecionado.hora_inicio }}-{{
+            agendamento_selecionado.hora_fim }} —
             {{ agendamento_selecionado.placa }} — {{ agendamento_selecionado.usuario_id }}
         </p>
     </div>
@@ -65,27 +97,40 @@
     <form action="{{ url_for('registrar_saida') }}" method="post">
         <!-- Agendamento -->
         <div class="mb-3">
-            <label for="agendamento_id" class="form-label"><i class="fa-solid fa-calendar-check me-2"></i>Selecione o Agendamento</label>
-            <select class="form-select" id="agendamento_id" name="agendamento_id" required {% if agendamento_selecionado %}disabled{% endif %}>
-                <option value="" disabled {% if not agendamento_selecionado %}selected{% endif %}>Escolha um agendamento confirmado</option>
+            <label for="agendamento_id" class="form-label"><i class="fa-solid fa-calendar-check me-2"></i>Selecione o
+                Agendamento</label>
+            {% if agendamento_selecionado %}
+            <select class="form-select" id="agendamento_id_display" style="pointer-events: none; opacity: 0.7;">
+                <option value="{{ agendamento_selecionado.id }}" selected>
+                    #{{ agendamento_selecionado.id }} — {{ agendamento_selecionado.data_solicitada }} {{
+                    agendamento_selecionado.hora_inicio }}-{{ agendamento_selecionado.hora_fim }} — {{
+                    agendamento_selecionado.placa }} — {{ agendamento_selecionado.usuario_id }} — {{
+                    agendamento_selecionado.destinos[:50] if agendamento_selecionado.destinos else '' }}
+                </option>
+            </select>
+            <input type="hidden" name="agendamento_id" value="{{ agendamento_selecionado.id }}">
+            <input type="hidden" name="antecipar" value="sim">
+            {% else %}
+            <select class="form-select" id="agendamento_id" name="agendamento_id" required>
+                <option value="" disabled selected>Escolha um agendamento confirmado</option>
                 {% for a in agendamentos %}
-                <option value="{{ a.id }}" {% if agendamento_selecionado and agendamento_selecionado.id == a.id %}selected{% endif %}>
-                    #{{ a.id }} — {{ a.data_solicitada }} {{ a.hora_inicio }}-{{ a.hora_fim }} — {{ a.placa }} — {{ a.usuario_id }} — {{ a.destinos[:50] if a.destinos else '' }}
+                <option value="{{ a.id }}">
+                    #{{ a.id }} — {{ a.data_solicitada }} {{ a.hora_inicio }}-{{ a.hora_fim }} — {{ a.placa }} — {{
+                    a.usuario_id }} — {{ a.destinos[:50] if a.destinos else '' }}
                 </option>
                 {% endfor %}
             </select>
-            {% if agendamento_selecionado %}
-            <input type="hidden" name="agendamento_id" value="{{ agendamento_selecionado.id }}">
-            <input type="hidden" name="antecipar" value="sim">
-            {% endif %}
             {% if agendamentos|length == 0 %}
-            <div class="form-text text-danger">Nenhum agendamento confirmado disponível. Confirme um agendamento na página de Agendamentos.</div>
+            <div class="form-text text-danger">Nenhum agendamento confirmado disponível. Confirme um agendamento na
+                página de Agendamentos.</div>
+            {% endif %}
             {% endif %}
         </div>
 
         <!-- Motorista -->
         <div class="mb-3">
-            <label for="motorista_id" class="form-label"><i class="fa-solid fa-person me-2"></i>Selecione o Motorista</label>
+            <label for="motorista_id" class="form-label"><i class="fa-solid fa-person me-2"></i>Selecione o
+                Motorista</label>
             <select class="form-select" id="motorista_id" name="motorista_id" required>
                 <option value="" disabled selected>Escolha o motorista responsável</option>
                 {% for m in motoristas %}
@@ -100,13 +145,16 @@
         <!-- KM Inicial -->
         <div class="mb-3">
             <label for="km_inicial" class="form-label"><i class="fa-solid fa-gauge me-2"></i>KM Inicial</label>
-            <input type="number" class="form-control" id="km_inicial" name="km_inicial" placeholder="Ex: 85420" value="{{ km_inicial or '' }}" required>
+            <input type="number" class="form-control" id="km_inicial" name="km_inicial" placeholder="Ex: 85420"
+                value="{{ km_inicial or '' }}" required>
         </div>
 
         <!-- Observações (opcional) -->
         <div class="mb-3">
-            <label for="observacoes" class="form-label"><i class="fa-solid fa-note-sticky me-2"></i>Observações (Opcional)</label>
-            <textarea class="form-control" id="observacoes" name="observacoes" rows="2" placeholder="Adicione observações sobre a saída...">{{ observacoes or '' }}</textarea>
+            <label for="observacoes" class="form-label"><i class="fa-solid fa-note-sticky me-2"></i>Observações
+                (Opcional)</label>
+            <textarea class="form-control" id="observacoes" name="observacoes" rows="2"
+                placeholder="Adicione observações sobre a saída...">{{ observacoes or '' }}</textarea>
         </div>
 
         <div style="display: grid;">
@@ -118,7 +166,7 @@
                 <i class="fa-solid fa-times me-2"></i>Cancelar
             </a>
             {% else %}
-            <button type="submit" class="btn btn-primary btn-lg" {% if agendamentos|length == 0 %}disabled{% endif %}>
+            <button type="submit" class="btn btn-primary btn-lg" {% if agendamentos|length==0 %}disabled{% endif %}>
                 <i class="fa-solid fa-check-circle me-2"></i>Registrar Saída
             </button>
             {% endif %}

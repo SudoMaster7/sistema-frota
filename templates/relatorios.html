@@ -3,14 +3,16 @@
 {% block title %}Relatórios Diários{% endblock %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
     .report-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ff002b 0%, #ff7b00 100%);
         color: white;
         padding: 2rem;
         border-radius: 12px;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        box-shadow: 0 10px 30px rgba(255, 0, 43, 0.2);
     }
     
     .report-header h1 {
@@ -26,16 +28,22 @@
         flex-wrap: wrap;
     }
     
-    .date-selector .form-control {
+    .date-selector .form-control,
+    .date-selector .form-select {
         background: rgba(255, 255, 255, 0.2);
         border: 2px solid rgba(255, 255, 255, 0.3);
         color: white;
         padding: 0.7rem;
         border-radius: 8px;
     }
-    
+
     .date-selector .form-control::placeholder {
         color: rgba(255, 255, 255, 0.7);
+    }
+
+    .date-selector .form-select option {
+        background: #1a1a1a;
+        color: white;
     }
     
     .date-selector .btn {
@@ -44,35 +52,95 @@
         color: white;
         font-weight: 600;
         padding: 0.7rem 1.5rem;
+        border-radius: 8px;
     }
     
     .date-selector .btn:hover {
         background: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #ff002b;
+        text-align: center;
+    }
+
+    .stat-card h5 {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #ff002b;
+        margin: 0.5rem 0;
+    }
+
+    .stat-unit {
+        color: #999;
+        font-size: 0.85rem;
+    }
+    
+    .charts-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .chart-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-card h4 {
+        color: #1a1a1a;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
     }
     
     .report-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 2rem;
+        gap: 1.5rem;
     }
     
     .report-card {
         background: white;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         overflow: hidden;
     }
     
     .report-card .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ff002b 0%, #ff7b00 100%);
         color: white;
         padding: 1.5rem;
         border: none;
     }
     
-    .report-card .card-header h4 {
+    .report-card .card-header h5 {
         margin-bottom: 0;
         font-weight: 600;
+        font-size: 1.1rem;
     }
     
     .report-table {
@@ -82,6 +150,11 @@
     .report-table thead {
         background: #f3f4f6;
     }
+
+    .report-table th {
+        color: #1a1a1a;
+        font-weight: 600;
+    }
     
     .report-table tbody tr:hover {
         background: #f9fafb;
@@ -90,6 +163,7 @@
     .empty-state {
         text-align: center;
         padding: 3rem 1rem;
+        color: #999;
     }
     
     .empty-state i {
@@ -97,38 +171,309 @@
         color: #d1d5db;
         margin-bottom: 1rem;
     }
-    
-    .stat-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
-    
-    .stat-label {
-        color: white;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-    
-    [data-bs-theme="dark"] .report-card {
+
+    [data-bs-theme="dark"] .report-card,
+    [data-bs-theme="dark"] .chart-card,
+    [data-bs-theme="dark"] .stat-card {
         background: #1e293b;
+        color: #fff;
     }
-    
+
     [data-bs-theme="dark"] .report-table thead {
         background: #3d4556;
     }
-    
+
     [data-bs-theme="dark"] .report-table tbody tr:hover {
         background: #2d3748;
     }
+
+    [data-bs-theme="dark"] .chart-card h4,
+    [data-bs-theme="dark"] .report-card .card-body {
+        color: #fff;
+    }
+
+    [data-bs-theme="dark"] .stat-card h5 {
+        color: #aaa;
+    }
+</style>
+
+<!-- Header Section -->
+<div class="report-header">
+    <h1><i class="fa-solid fa-chart-bar me-2"></i>Relatórios Diários</h1>
+    <div class="date-selector">
+        <form method="get" action="{{ url_for('relatorios') }}" class="d-flex gap-2 align-items-end flex-wrap w-100">
+            <!-- Data -->
+            <div>
+                <label style="color: white; font-weight: bold; display: block; margin-bottom: 0.5rem;">Data:</label>
+                <input type="date" name="data" value="{{ data_input_value }}" class="form-control" style="width: 200px;">
+            </div>
+            
+            <!-- Filtro por Veículo -->
+            <div>
+                <label style="color: white; font-weight: bold; display: block; margin-bottom: 0.5rem;">Veículo:</label>
+                <select name="veiculo" class="form-select" style="width: 200px;">
+                    <option value="">Todos os veículos</option>
+                    {% for veiculo in todos_veiculos %}
+                    <option value="{{ veiculo.placa }}" {% if request.args.get('veiculo') == veiculo.placa %}selected{% endif %}>
+                        {{ veiculo.placa }} - {{ veiculo.marca }} {{ veiculo.modelo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Filtro por Motorista -->
+            <div>
+                <label style="color: white; font-weight: bold; display: block; margin-bottom: 0.5rem;">Motorista:</label>
+                <select name="motorista" class="form-select" style="width: 200px;">
+                    <option value="">Todos os motoristas</option>
+                    {% for motorista in todos_motoristas %}
+                    <option value="{{ motorista.nome if motorista.nome else motorista.email }}" {% if request.args.get('motorista') == motorista.nome or request.args.get('motorista') == motorista.email %}selected{% endif %}>
+                        {{ motorista.nome if motorista.nome else motorista.email }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Botão de Busca -->
+            <button type="submit" class="btn">
+                <i class="fa-solid fa-magnifying-glass me-2"></i>Buscar
+            </button>
+        </form>
+    </div>
+    <div style="margin-top: 1rem; color: rgba(255,255,255,0.9);">
+        <strong>Período:</strong> {{ data_display }} | <strong>Total de Viagens:</strong> <span style="font-size: 1.3rem; font-weight: bold;">{{ viagens_total }}</span>
+    </div>
+</div>
+
+<!-- Estatísticas Principais -->
+<div class="stats-row">
+    <div class="stat-card">
+        <h5><i class="fa-solid fa-car me-1"></i> Viagens Realizadas</h5>
+        <div class="stat-number">{{ viagens_total }}</div>
+        <div class="stat-unit">no período</div>
+    </div>
+    
+    {% if relatorio_veiculos %}
+    <div class="stat-card">
+        <h5><i class="fa-solid fa-road me-1"></i> Quilometragem Total</h5>
+        <div class="stat-number">{{ relatorio_veiculos.values()|sum|int }}</div>
+        <div class="stat-unit">km da frota</div>
+    </div>
+    
+    <div class="stat-card">
+        <h5><i class="fa-solid fa-calculator me-1"></i> Média por Viagem</h5>
+        <div class="stat-number">{{ (relatorio_veiculos.values()|sum / viagens_total)|round(1) if viagens_total > 0 else 0 }}</div>
+        <div class="stat-unit">km</div>
+    </div>
+    
+    <div class="stat-card">
+        <h5><i class="fa-solid fa-bus me-1"></i> Veículos Utilizados</h5>
+        <div class="stat-number">{{ relatorio_veiculos|length }}</div>
+        <div class="stat-unit">{% if todos_veiculos %}de {{ todos_veiculos|length }}{% endif %}</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Gráficos -->
+<div class="charts-row">
+    {% if relatorio_veiculos %}
+    <!-- Gráfico de Quilometragem por Veículo -->
+    <div class="chart-card">
+        <h4><i class="fa-solid fa-chart-pie me-2"></i>Quilometragem por Veículo</h4>
+        <canvas id="veiculosChart"></canvas>
+    </div>
+
+    <!-- Gráfico de Quilometragem por Motorista -->
+    <div class="chart-card">
+        <h4><i class="fa-solid fa-chart-column me-2"></i>Quilometragem por Motorista</h4>
+        <canvas id="motoristasChart"></canvas>
+    </div>
+    {% else %}
+    <div class="chart-card">
+        <div class="empty-state">
+            <i class="fa-solid fa-chart-pie"></i>
+            <p class="text-muted">Nenhuma viagem registrada para este período</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tabelas Detalhadas -->
+<div class="report-grid">
+    <!-- Quilometragem por Veículo -->
+    <div class="report-card">
+        <div class="card-header">
+            <h5><i class="fa-solid fa-car me-2"></i>Detalhes por Veículo</h5>
+        </div>
+        <div class="card-body">
+            {% if relatorio_veiculos %}
+                <div class="table-responsive">
+                    <table class="table table-striped report-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th class="text-end">Quilometragem</th>
+                                <th class="text-center">Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_km = relatorio_veiculos.values()|sum %}
+                            {% for placa, distancia in relatorio_veiculos.items()|sort(attribute='1', reverse=true) %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-danger" style="font-size: 0.9rem; font-family: monospace;">{{ placa }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <strong>{{ distancia|int }} km</strong>
+                                </td>
+                                <td class="text-center">
+                                    {% set percentual = (distancia / total_km * 100)|round(1) if total_km > 0 else 0 %}
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" style="width: {{ percentual }}%; background: linear-gradient(90deg, #ff002b 0%, #ff7b00 100%);">
+                                            {{ percentual }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-car-side"></i>
+                    <p class="text-muted">Nenhuma viagem registrada</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quilometragem por Motorista -->
+    <div class="report-card">
+        <div class="card-header">
+            <h5><i class="fa-solid fa-user-tie me-2"></i>Detalhes por Motorista</h5>
+        </div>
+        <div class="card-body">
+            {% if relatorio_motoristas %}
+                <div class="table-responsive">
+                    <table class="table table-striped report-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Motorista</th>
+                                <th class="text-end">Quilometragem</th>
+                                <th class="text-center">Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_km = relatorio_motoristas.values()|sum %}
+                            {% for motorista, distancia in relatorio_motoristas.items()|sort(attribute='1', reverse=true) %}
+                            <tr>
+                                <td><strong>{{ motorista }}</strong></td>
+                                <td class="text-end">
+                                    <strong>{{ distancia|int }} km</strong>
+                                </td>
+                                <td class="text-center">
+                                    {% set percentual = (distancia / total_km * 100)|round(1) if total_km > 0 else 0 %}
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" style="width: {{ percentual }}%; background: linear-gradient(90deg, #ff7b00 0%, #ff002b 100%);">
+                                            {{ percentual }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <p class="text-muted">Nenhuma viagem registrada</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gráfico de Veículos
+    const veiculosData = {{ relatorio_veiculos|tojson }};
+    if (Object.keys(veiculosData).length > 0) {
+        const veiculosCtx = document.getElementById('veiculosChart').getContext('2d');
+        new Chart(veiculosCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(veiculosData),
+                datasets: [{
+                    data: Object.values(veiculosData),
+                    backgroundColor: [
+                        '#ff002b',
+                        '#ff7b00',
+                        '#ff4d00',
+                        '#ff0047',
+                        '#ff6600',
+                        '#ff1a3d',
+                        '#ff8800',
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12, weight: 'bold' }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Gráfico de Motoristas
+    const motoristasData = {{ relatorio_motoristas|tojson }};
+    if (Object.keys(motoristasData).length > 0) {
+        const motoristasCtx = document.getElementById('motoristasChart').getContext('2d');
+        new Chart(motoristasCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(motoristasData),
+                datasets: [{
+                    label: 'Quilometragem (km)',
+                    data: Object.values(motoristasData),
+                    backgroundColor: 'linear-gradient(90deg, #ff002b 0%, #ff7b00 100%)',
+                    borderColor: '#ff002b',
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { font: { size: 12, weight: 'bold' } }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: '#f0f0f0' }
+                    }
+                }
+            }
+        });
+    }
+</script>
+    
+
 </style>
 
 <div class="report-header">
